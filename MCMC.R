@@ -19,26 +19,13 @@ FH_Fit <- function(Y, X, S2, sig2b=1000, iter=1000, burn=500){
     b <- rnorm(p)
     beta1 <- beta1Out[i,] <- backsolve(Ub, backsolve(Ub, meanBeta, transpose=T) + b)
     
-    ## Random effects
-    # precEta <- Diagonal(x=1/S2+(1/tau2))
-    # U <- chol((precEta))
-    # meanEta <- Diagonal(x=1/S2)%*%(Y-X%*%beta1)
-    # b <- rnorm(n)
-    # eta1 <- eta1Out[i,] <- backsolve(U, backsolve(U, meanEta, transpose=T) + b)
     
     ## Random effects
     var <- solve(Diagonal(x=1/S2+(1/tau2)))
     meanEta <- var%*%Diagonal(x=1/S2)%*%(Y-X%*%beta1)
     eta1 <- eta1Out[i,] <- rnorm(n, mean=as.numeric(meanEta), sd=sqrt(diag(var)))
     
-    
-    ## sample mean function coefs
-    # var <- solve(XtX + bdiag(1/sig2b*Diagonal(p), 1/tau2*Diagonal(r)))
-    # mu <- var%*%XtY
-    # ch <- Matrix::chol(var)
-    # tmp <- ch%*%rnorm(length(mu)) + mu#as.numeric(rmvnorm(1, mean=mu, sigma=as.matrix(var)))
-    # beta1 <- beta1Out[,i] <- tmp[1:p]
-    # eta1 <- eta1Out[,i] <- tmp[-c(1:p)]
+
     theta <- thetaOut[,i] <- X%*%beta1 + eta1
     xbOut[,i] <- theta - eta1
     
@@ -76,14 +63,7 @@ FH_RNN_Fit <- function(Y, X, S2, nh=200, iter=1000, burn=500){
     b <- rnorm(nh)
     beta1 <- beta1Out[i,] <- backsolve(Ub, backsolve(Ub, meanBeta, transpose=T) + b)
     
-    ## Random effects
-    # precEta <- Diagonal(x=1/S2+(1/tau2))
-    # U <- chol((precEta))
-    # meanEta <- Diagonal(x=1/S2)%*%(Y-HL%*%beta1)
-    # b <- rnorm(n)
-    # eta1 <- eta1Out[i,] <- backsolve(U, backsolve(U, meanEta, transpose=T) + b)
-    # etaTest <- rnorm(n, mean=as.numeric(solve(precEta)%*%meanEta), sd=sqrt(diag(solve(precEta))))
-    
+
     ## Random effects
     var <- solve(Diagonal(x=1/S2+(1/tau2)))
     meanEta <- var%*%Diagonal(x=1/S2)%*%(Y-HL%*%beta1)
@@ -91,11 +71,6 @@ FH_RNN_Fit <- function(Y, X, S2, nh=200, iter=1000, burn=500){
 
     
     ## sample mean function coefs
-    # var <- solve(t(XP)%*%Diagonal(x=1/S2)%*%XP + bdiag(1/sig2b*Diagonal(nh), 1/tau2*Diagonal(r)))
-    # mu <- var%*%t(XP)%*%Diagonal(x=1/S2)%*%Y
-    # tmp <- as.numeric(rmvnorm(1, mean=mu, sigma=as.matrix(forceSymmetric(var))))
-    # beta1 <- beta1Out[,i] <- tmp[1:nh]
-    # eta1 <- eta1Out[,i] <- tmp[-c(1:nh)]
     theta <- thetaOut[,i] <- HL%*%beta1 + eta1
     xbOut[,i] <- theta - eta1
     
